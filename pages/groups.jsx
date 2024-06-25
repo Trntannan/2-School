@@ -12,8 +12,6 @@ const Groups = () => {
     { id: 3, name: 'School Friends', status: 'pending' }
   ]);
 
-  const toggleFullScreen = () => setFullScreen(!fullScreen);
-
   return (
     <div className={styles.groupsPage}>
       <div className="page-header">
