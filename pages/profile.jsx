@@ -1,35 +1,24 @@
-// pages/profile.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 import styles from '../styles/profile.module.css';
 
-const Profile = () => {
+const CompleteProfile = () => {
   const [form, setForm] = useState({
-    id: '', // This should be set when the user logs in
+    id: '', 
     fullName: '',
     mobile: '',
     school: '',
     bio: '',
     profilePic: null,
   });
-  const [qrCode, setQrCode] = useState(null);
+
+  const router = useRouter();
 
   useEffect(() => {
     // Replace with the actual user ID after login
     const userId = 'user-id-from-authentication';
     setForm((prevForm) => ({ ...prevForm, id: userId }));
-
-    // Fetch QR code
-    const fetchQrCode = async () => {
-      try {
-        const response = await axios.get(`/api/qrcode/${userId}`);
-        setQrCode(response.data.src);
-      } catch (error) {
-        console.error('Error fetching QR code', error);
-      }
-    };
-
-    fetchQrCode();
   }, []);
 
   const handleChange = (e) => {
@@ -53,6 +42,7 @@ const Profile = () => {
         }
       });
       alert(response.data.message);
+      router.push(`/userProfile?id=${form.id}`); 
     } catch (error) {
       alert('Error updating profile');
     }
@@ -61,7 +51,7 @@ const Profile = () => {
   return (
     <div className={styles.profilePage}>
       <div className="page-header">
-        <h1>Profile</h1>
+        <h1>Complete Your Profile</h1>
       </div>
       <form onSubmit={handleSubmit} className={styles.formContainer}>
         <div className={styles.formGroup}>
@@ -87,13 +77,8 @@ const Profile = () => {
         </div>
         <button type="submit">Save Profile</button>
       </form>
-
-      <div className={styles.qrCodeContainer}>
-        <h2>QR Code</h2>
-        {qrCode ? <img src={qrCode} alt="QR Code" /> : <p>Loading...</p>}
-      </div>
     </div>
   );
 };
 
-export default Profile;
+export default CompleteProfile;

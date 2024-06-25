@@ -27,7 +27,7 @@ class MyApp extends App {
           {dropdownOpen && (
             <div className="dropdown-content">
               <Link href="/" onClick={this.closeDropdown}>Home</Link>
-              <Link href="/profile" onClick={this.closeDropdown}>Profile</Link>
+              <Link href="/UserProfile" onClick={this.closeDropdown}>Profile</Link>
               <Link href="/groups" onClick={this.closeDropdown}>Groups</Link>
             </div>
           )}

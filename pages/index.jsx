@@ -1,9 +1,8 @@
-"use client";
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import styles from '../styles/home.module.css';
+
 
 const Home = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -34,7 +33,8 @@ const Home = () => {
           password: form.password
         });
         alert(response.data.message);
-        router.push('/groups'); // Changed from '/groups.jsx' to '/groups'
+        localStorage.setItem('token', response.data.token); 
+        router.push('/profile'); 
       } catch (error) {
         alert(error.response.data.message || 'Error logging in');
       }
@@ -51,7 +51,7 @@ const Home = () => {
           password
         });
         alert(response.data.message);
-        router.push('/profile'); // Changed from '/profile.jsx' to '/profile'
+        router.push('/profile'); 
       } catch (error) {
         alert(error.response.data.message || 'Error signing up');
       }

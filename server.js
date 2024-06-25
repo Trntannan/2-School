@@ -1,6 +1,6 @@
-// server.js
 const express = require('express');
 const next = require('next');
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const crypto = require('crypto');
@@ -10,31 +10,70 @@ const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
-let users = [];
-let profiles = {};
+const mongoURI = 'mongodb+srv://trntannan1:Trentas.10@cluster0.gubddcm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+
+mongoose.connect(mongoURI).then(async () => {
+    console.log("Connected to MongoDB");
+    await initializeDatabase();
+}).catch(err => {
+    console.error("Could not connect to MongoDB", err);
+});
+
+const userSchema = new mongoose.Schema({
+    username: String,
+    email: String,
+    password: String,
+    qr: String,
+});
+const profileSchema = new mongoose.Schema({
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    fullName: String,
+    mobile: String,
+    school: String,
+    bio: String,
+    profilePic: String,
+});
+
+const User = mongoose.model('User', userSchema);
+const Profile = mongoose.model('Profile', profileSchema);
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+
+async function initializeDatabase() {
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    const collectionNames = collections.map(c => c.name);
+    
+    if (!collectionNames.includes('users')) {
+        await mongoose.connection.createCollection('users');
+        console.log('Created users collection');
+    }
+    if (!collectionNames.includes('profiles')) {
+        await mongoose.connection.createCollection('profiles');
+        console.log('Created profiles collection');
+    }
+}
 
 app.prepare().then(() => {
     const server = express();
     server.use(bodyParser.json());
 
     // Register endpoint
-    server.post('/api/register', (req, res) => {
+    server.post('/api/register', async (req, res) => {
         const { username, email, password } = req.body;
-        if (users.find(user => user.email === email)) {
+        if (await User.findOne({ email })) {
             return res.status(400).send({ message: 'User already exists' });
         }
         const id = crypto.randomBytes(16).toString('hex');
-        users.push({ id, username, email, password, qr: id });
+        const user = new User({ username, email, password, qr: id });
+        await user.save();
         res.send({ message: 'User registered successfully' });
     });
 
     // Login endpoint
-    server.post('/api/login', (req, res) => {
+    server.post('/api/login', async (req, res) => {
         const { email, password } = req.body;
-        const user = users.find(u => u.email === email && u.password === password);
+        const user = await User.findOne({ email, password });
         if (!user) {
             return res.status(401).send({ message: 'Invalid credentials' });
         }
@@ -42,38 +81,44 @@ app.prepare().then(() => {
     });
 
     // Profile update endpoint
-    server.post('/api/profile', upload.single('profilePic'), (req, res) => {
-        const { id, fullName, mobile, school, bio } = req.body;
+    server.post('/api/profile', upload.single('profilePic'), async (req, res) => {
+        const { userId, fullName, mobile, school, bio } = req.body;
         const profilePic = req.file ? req.file.buffer.toString('base64') : null;
-
-        profiles[id] = {
-            fullName,
-            mobile,
-            school,
-            bio,
-            profilePic
-        };
-
+        const profile = new Profile({ userId, fullName, mobile, school, bio, profilePic });
+        await profile.save();
         res.send({ message: 'Profile updated successfully' });
     });
 
+    // Fetch user profile endpoint
+    server.get('/api/profiles/:userId', async (req, res) => {
+        const { userId } = req.params;
+        try {
+            const profile = await Profile.findOne({ userId }).populate('userId');
+            if (!profile) {
+                return res.status(404).send({ message: 'Profile not found' });
+            }
+            res.send(profile);
+        } catch (error) {
+            res.status(500).send({ message: 'Error retrieving profile' });
+        }
+    });
+
     // QR Code generation endpoint
-    server.get('/api/qrcode/:id', (req, res) => {
-        const { id } = req.params;
-        if (!users.find(u => u.id === id)) {
+    server.get('/api/qrcode/:userId', async (req, res) => {
+        const { userId } = req.params;
+        const user = await User.findById(userId);
+        if (!user) {
             return res.status(404).send({ message: 'User not found' });
         }
 
-        const url = `https://localhost:3000/profile/${id}`;
+        const url = `https://localhost:3000/profile/${userId}`;
         QRCode.toDataURL(url, (err, src) => {
-            if (err) res.send({ message: 'Error generating QR code' });
+            if (err) return res.send({ message: 'Error generating QR code' });
             res.send({ src });
         });
     });
 
-    server.all('*', (req, res) => {
-        return handle(req, res);
-    });
+    server.all('*', (req, res) => handle(req, res));
 
     server.listen(3000, (err) => {
         if (err) throw err;

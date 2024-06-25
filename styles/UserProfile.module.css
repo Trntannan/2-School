@@ -1,0 +1,35 @@
+.profilePage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.profilePicSection {
+    flex: 1;
+}
+
+.infoSection {
+    flex: 2;
+    text-align: left;
+    margin-left: 20px;
+}
+
+.profilePic {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+}
+
+.qrCodeSection {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.bioSection {
+    margin-top: 10px;
+}
+
+.editButton {
+    margin-top: 10px;
+}
