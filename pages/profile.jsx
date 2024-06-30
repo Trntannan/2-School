@@ -16,10 +16,22 @@ const CompleteProfile = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // Replace with the actual user ID after login
-    const userId = 'user-id-from-authentication';
+    const userId = router.query.userId || localStorage.getItem('userId'); // Get userId from query or local storage
     setForm((prevForm) => ({ ...prevForm, id: userId }));
-  }, []);
+
+    const fetchProfile = async () => {
+      if (userId) {
+        try {
+          const response = await axios.get(`/api/profile/${userId}`);
+          setForm((prevForm) => ({ ...prevForm, ...response.data }));
+        } catch (error) {
+          console.error("Error retrieving profile data", error);
+        }
+      }
+    };
+
+    fetchProfile();
+  }, [router.query.userId]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -34,7 +46,14 @@ const CompleteProfile = () => {
     e.preventDefault();
     try {
       const formData = new FormData();
-      Object.keys(form).forEach((key) => formData.append(key, form[key]));
+      formData.append('userId', form.id);
+      formData.append('fullName', form.fullName);
+      formData.append('mobile', form.mobile);
+      formData.append('school', form.school);
+      formData.append('bio', form.bio);
+      if (form.profilePic) {
+        formData.append('profilePic', form.profilePic);
+      }
 
       const response = await axios.post('/api/profile', formData, {
         headers: {
@@ -42,7 +61,7 @@ const CompleteProfile = () => {
         }
       });
       alert(response.data.message);
-      router.push(`/userProfile?id=${form.id}`); 
+      router.push(`/userProfile?userId=${form.id}`);
     } catch (error) {
       alert('Error updating profile');
     }

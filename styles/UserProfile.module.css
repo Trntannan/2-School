@@ -1,12 +1,11 @@
-.profilePage {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 20px;
-}
 
-.profilePicSection {
+
+.picName {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     flex: 1;
+    margin: 0 20px 0 20px;
 }
 
 .infoSection {
@@ -19,14 +18,23 @@
     width: 150px;
     height: 150px;
     border-radius: 50%;
+    margin-left: 80px;
+    margin-bottom: 40px;
+}
+
+.fullName {
+    align-self: center;
+    margin-right: 80px;
 }
 
 .qrCodeSection {
     margin-top: 20px;
-    text-align: center;
 }
 
 .bioSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-top: 10px;
 }
 

@@ -11,6 +11,12 @@
     "Fira Mono", "Droid Sans Mono", "Courier New", monospace; 
 }
 
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+} 
+
 /* Reset styles */
 body, h1, h2, h3, h4, h5, h6, p, img {
   margin: 0;
@@ -18,11 +24,16 @@ body, h1, h2, h3, h4, h5, h6, p, img {
 }
 
 body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   font-family: Arial, sans-serif;
   line-height: 1.6;
   background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb)));
   background-repeat: no-repeat;
   background-size: cover;
+  width: 100vw;
 }
 
 a {
@@ -34,7 +45,7 @@ a {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
+  width: 100vw;
   padding: 10px 20px;
   background-color: #333;
   color: white;
@@ -121,3 +132,4 @@ input[type="text"], input[type="email"], input[type="password"], input[type="fil
   border-radius: 5px;
   margin-bottom: 10px;
 }
+

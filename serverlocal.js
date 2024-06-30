@@ -10,8 +10,6 @@ const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
-const { MongoClient } = require("mongodb");
-
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -20,46 +18,9 @@ if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR);
 }
 
-const mongoURI =
-  "mongodb+srv://trntannan1:Trentas.10@cluster0.gubddcm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0i"; // Replace with your MongoDB connection URI
-
-async function connectToMongoDB() {
-  const client = new MongoClient(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-
-  try {
-    await client.connect();
-    console.log("Connected to MongoDB server");
-
-    const db = client.db("user_data");
-
-    // Check if the database exists; if not, create it
-    const dbList = await client.db().admin().listDatabases();
-    const databaseExists = dbList.databases.some(
-      (db) => db.name === "user_data"
-    );
-
-    if (!databaseExists) {
-      await db.createCollection("users");
-      console.log("Created 'users' collection in the database");
-    }
-
-    return db;
-  } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
-    throw error;
-  }
-}
-
 app
   .prepare()
-  .then(async () => {
-    const db = await connectToMongoDB();
-
-    const usersCollection = db.collection("users");
-
+  .then(() => {
     const server = express();
     server.use(bodyParser.json());
 
@@ -67,15 +28,15 @@ app
     server.post("/api/register", async (req, res) => {
       const { username, email, password } = req.body;
 
-      const existingUser = await usersCollection.findOne({ email });
-      if (existingUser) {
+      const userFilePath = path.join(DATA_DIR, `${email}.json`);
+      if (fs.existsSync(userFilePath)) {
         return res.status(400).send({ message: "User already exists" });
       }
 
       const userId = crypto.randomBytes(16).toString("hex");
-      const newUser = { userId, username, email, password };
+      const user = { userId, username, email, password };
 
-      await usersCollection.insertOne(newUser);
+      fs.writeFileSync(userFilePath, JSON.stringify(user, null, 2));
       res.send({ message: "User registered successfully", userId });
     });
 
@@ -83,8 +44,13 @@ app
     server.post("/api/login", async (req, res) => {
       const { email, password } = req.body;
 
-      const user = await usersCollection.findOne({ email, password });
-      if (!user) {
+      const userFilePath = path.join(DATA_DIR, `${email}.json`);
+      if (!fs.existsSync(userFilePath)) {
+        return res.status(401).send({ message: "Invalid credentials" });
+      }
+
+      const user = JSON.parse(fs.readFileSync(userFilePath));
+      if (user.password !== password) {
         return res.status(401).send({ message: "Invalid credentials" });
       }
 
@@ -95,26 +61,37 @@ app
     });
 
     // Profile update endpoint
-    server.put(
+    server.post(
       "/api/profile",
       upload.single("profilePic"),
       async (req, res) => {
-        const { userId, field, value } = req.body;
+        const { userId, fullName, mobile, school, bio } = req.body;
 
-        const user = await usersCollection.findOne({ userId });
-        if (!user) {
+        // Find the user's file by matching the userId
+        const userFiles = fs.readdirSync(DATA_DIR);
+        const userFilePath = userFiles.find((file) => {
+          const user = JSON.parse(fs.readFileSync(path.join(DATA_DIR, file)));
+          return user.userId === userId;
+        });
+
+        if (!userFilePath) {
           return res.status(404).send({ message: "User not found" });
         }
 
-        const updatedProfile = { [field]: value };
+        const user = JSON.parse(
+          fs.readFileSync(path.join(DATA_DIR, userFilePath))
+        );
+
+        // Update profile information
+        user.profile = { fullName, mobile, school, bio };
 
         if (req.file) {
-          updatedProfile.profilePic = req.file.buffer.toString("base64");
+          user.profile.profilePic = req.file.buffer.toString("base64");
         }
 
-        await usersCollection.updateOne(
-          { userId },
-          { $set: { [`profile.${field}`]: value } }
+        fs.writeFileSync(
+          path.join(DATA_DIR, userFilePath),
+          JSON.stringify(user)
         );
 
         res.send({ message: "Profile updated successfully" });
@@ -122,14 +99,22 @@ app
     );
 
     // Fetch user profile data endpoint
-    server.get("/api/profile/:userId", async (req, res) => {
+    server.get("/api/profile/:userId", (req, res) => {
       const { userId } = req.params;
 
-      const user = await usersCollection.findOne({ userId });
-      if (!user) {
+      const userFiles = fs.readdirSync(DATA_DIR);
+      const userFilePath = userFiles.find((file) => {
+        const user = JSON.parse(fs.readFileSync(path.join(DATA_DIR, file)));
+        return user.userId === userId;
+      });
+
+      if (!userFilePath) {
         return res.status(404).send({ message: "User not found" });
       }
 
+      const user = JSON.parse(
+        fs.readFileSync(path.join(DATA_DIR, userFilePath))
+      );
       res.send(user.profile);
     });
 

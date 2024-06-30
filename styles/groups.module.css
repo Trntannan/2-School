@@ -1,4 +1,3 @@
-/* styles/groups.module.css */
 .groupsPage {
   width: 100%;
   display: flex;
@@ -24,7 +23,7 @@
 }
 
 .mapContainer {
-  width: 70%;
+  width: 55%;
   position: relative;
   z-index: 1;
 }
@@ -35,10 +34,21 @@
 }
 
 .groupsList {
-  width: 25%;
+  width: 40%;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: start;
+  justify-content: flex-start;
+}
+
+.activeGroups {
+  align-self: center;
+}
+
+.groupsHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
 .groupsList ul {

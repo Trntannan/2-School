@@ -1,16 +1,19 @@
-// pages/groups.js
 import React, { useState } from 'react';
-import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import styles from '../styles/groups.module.css';
 
 const Groups = () => {
-  const [fullScreen, setFullScreen] = useState(false);
   const [groups, setGroups] = useState([
     { id: 1, name: 'Morning Walk', status: 'active' },
     { id: 2, name: 'Evening Stroll', status: 'created' },
     { id: 3, name: 'School Friends', status: 'pending' }
   ]);
+
+  const handleNewGroupClick = () => {
+    // Implement logic to show/create a form for new group here
+    console.log("Create new group form should open.");
+  };
 
   return (
     <div className={styles.groupsPage}>
@@ -23,7 +26,7 @@ const Groups = () => {
             center={[7.2905715, 80.6337262]} 
             zoom={13} 
             scrollWheelZoom={false} 
-            className={fullScreen ? styles.mapFullScreen : styles.map}
+            className={styles.map}
           >
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -31,7 +34,12 @@ const Groups = () => {
           </MapContainer>
         </div>
         <div className={styles.groupsList}>
-          <h2>Active Groups</h2>
+          <div className={styles.groupsHeader}>
+            <h2 className={styles.activeGroups}>Active Groups</h2>
+            <button className={styles.addGroupButton} onClick={handleNewGroupClick}>
+              +
+            </button>
+          </div>
           <ul>
             {groups.map(group => (
               <li key={group.id} className={styles.groupItem}>
