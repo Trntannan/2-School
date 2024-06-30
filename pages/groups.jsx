@@ -35,7 +35,7 @@ const Groups = () => {
         </div>
         <div className={styles.groupsList}>
           <div className={styles.groupsHeader}>
-            <h2 className={styles.activeGroups}>Active Groups</h2>
+            <h2 className={styles.userGroups}>Active Groups</h2>
             <button className={styles.addGroupButton} onClick={handleNewGroupClick}>
               +
             </button>
