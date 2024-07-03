@@ -51,7 +51,7 @@ const Home = () => {
         });
         alert(response.data.message);
         localStorage.setItem("userId", response.data.userId); // Store user ID in local storage
-        router.push("/profile");
+        router.push("/completeProfile");
       } catch (error) {
         alert(error.response.data.message || "Error signing up");
       }

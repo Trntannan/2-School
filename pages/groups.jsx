@@ -1,18 +1,70 @@
-import React, { useState } from 'react';
-import { MapContainer, TileLayer } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import styles from '../styles/groups.module.css';
+import React, { useState, useEffect } from "react";
+import GoogleMapReact from 'google-map-react';
+import styles from "../styles/groups.module.css";
+import NewGroupForm from "../components/newGroupForm";
+import axios from "axios";
 
 const Groups = () => {
-  const [groups, setGroups] = useState([
-    { id: 1, name: 'Morning Walk', status: 'active' },
-    { id: 2, name: 'Evening Stroll', status: 'created' },
-    { id: 3, name: 'School Friends', status: 'pending' }
-  ]);
+  const [groups, setGroups] = useState([]);
+  const [showNewGroupForm, setShowNewGroupForm] = useState(false);
+  const [map, setMap] = useState(null);
+  const [mapsApi, setMapsApi] = useState(null);
+  const [directionRenderers, setDirectionRenderers] = useState([]);
 
-  const handleNewGroupClick = () => {
-    // Implement logic to show/create a form for new group here
-    console.log("Create new group form should open.");
+  useEffect(() => {
+    const fetchUserGroups = async () => {
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        // Handle missing user ID
+        return;
+      }
+
+      try {
+        const response = await axios.get(`/api/groups/${userId}`);
+        if (response.data.groups) {
+          setGroups(response.data.groups);
+        }
+      } catch (error) {
+        console.error("Error fetching user groups:", error);
+      }
+    };
+
+    fetchUserGroups();
+  }, []);
+
+  const handleNewGroup = () => {
+    setShowNewGroupForm(true);
+  };
+
+  const handleCloseForm = () => {
+    setShowNewGroupForm(false);
+  };
+
+  const renderDirections = (map, mapsApi, group) => {
+    const { meetupPoint, schoolLocation } = group;
+    const directionsService = new mapsApi.DirectionsService();
+    const directionsRenderer = new mapsApi.DirectionsRenderer();
+
+    directionsRenderer.setMap(map);
+
+    directionsService.route({
+      origin: meetupPoint,
+      destination: schoolLocation,
+      travelMode: 'WALKING'
+    }, (result, status) => {
+      if (status === mapsApi.DirectionsStatus.OK) {
+        directionsRenderer.setDirections(result);
+        setDirectionRenderers(prevState => [...prevState, directionsRenderer]);
+      } else {
+        console.error(`Directions request failed due to ${status}`);
+      }
+    });
+  };
+
+  const apiIsLoaded = (map, mapsApi) => {
+    setMap(map);
+    setMapsApi(mapsApi);
+    groups.forEach(group => renderDirections(map, mapsApi, group));
   };
 
   return (
@@ -22,34 +74,47 @@ const Groups = () => {
       </div>
       <div className={styles.mainContent}>
         <div className={styles.mapContainer}>
-          <MapContainer 
-            center={[7.2905715, 80.6337262]} 
-            zoom={13} 
-            scrollWheelZoom={false} 
+          <GoogleMapReact
+            bootstrapURLKeys={{
+              key: "AIzaSyDnZFGBT7fBegTCG1unMndZ4eEV5pFEzfI",
+            }}
+            defaultCenter={{ lat: -36.892057, lng: 174.618656 }}
+            defaultZoom={10}
             className={styles.map}
-          >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-          </MapContainer>
+            yesIWantToUseGoogleMapApiInternals
+            onGoogleApiLoaded={({ map, maps }) => apiIsLoaded(map, maps)}
+          />
         </div>
         <div className={styles.groupsList}>
           <div className={styles.groupsHeader}>
             <h2 className={styles.userGroups}>Active Groups</h2>
-            <button className={styles.addGroupButton} onClick={handleNewGroupClick}>
+            <button
+              className={styles.addGroupButton}
+              onClick={handleNewGroup}
+            >
               +
             </button>
           </div>
           <ul>
-            {groups.map(group => (
-              <li key={group.id} className={styles.groupItem}>
-                <span className={group.status === 'active' ? styles.green : group.status === 'created' ? styles.grey : styles.yellow}></span>
-                {group.name}
+            {groups.map((group, index) => (
+              <li key={index} className={styles.groupItem}>
+                <span className={styles[group.status]}></span>
+                {group.groupName}
               </li>
             ))}
           </ul>
         </div>
       </div>
+      {showNewGroupForm && (
+        <div className={styles.overlay}>
+          <div className={styles.formContainer}>
+            <button className={styles.closeButton} onClick={handleCloseForm}>
+              X
+            </button>
+            <NewGroupForm map={map} mapsApi={mapsApi} setGroups={setGroups} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

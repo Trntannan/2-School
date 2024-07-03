@@ -5,7 +5,7 @@ import styles from '../styles/profile.module.css';
 
 const CompleteProfile = () => {
   const [form, setForm] = useState({
-    id: '', 
+    id: '',
     fullName: '',
     mobile: '',
     school: '',
@@ -16,7 +16,7 @@ const CompleteProfile = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const userId = router.query.userId || localStorage.getItem('userId'); // Get userId from query or local storage
+    const userId = router.query.userId || localStorage.getItem('userId');
     setForm((prevForm) => ({ ...prevForm, id: userId }));
 
     const fetchProfile = async () => {
@@ -55,10 +55,10 @@ const CompleteProfile = () => {
         formData.append('profilePic', form.profilePic);
       }
 
-      const response = await axios.post('/api/profile', formData, {
+      const response = await axios.put('/api/profile', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       });
       alert(response.data.message);
       router.push(`/userProfile?userId=${form.id}`);
@@ -75,23 +75,23 @@ const CompleteProfile = () => {
       <form onSubmit={handleSubmit} className={styles.formContainer}>
         <div className={styles.formGroup}>
           <label htmlFor="fullName">Full Name</label>
-          <input type="text" name="fullName" value={form.fullName} onChange={handleChange} required />
+          <input id="fullName" type="text" name="fullName" value={form.fullName} onChange={handleChange} required />
         </div>
         <div className={styles.formGroup}>
           <label htmlFor="mobile">Mobile</label>
-          <input type="text" name="mobile" value={form.mobile} onChange={handleChange} required />
+          <input id="mobile" type="text" name="mobile" value={form.mobile} onChange={handleChange} required />
         </div>
         <div className={styles.formGroup}>
           <label htmlFor="school">School</label>
-          <input type="text" name="school" value={form.school} onChange={handleChange} required />
+          <input id="school" type="text" name="school" value={form.school} onChange={handleChange} required />
         </div>
         <div className={styles.formGroup}>
           <label htmlFor="bio">Bio</label>
-          <textarea name="bio" value={form.bio} onChange={handleChange} required />
+          <textarea id="bio" name="bio" value={form.bio} onChange={handleChange} required />
         </div>
         <div className={styles.profilePicContainer}>
           <label htmlFor="profilePic">Profile Picture</label>
-          <input type="file" name="profilePic" onChange={handleChange} />
+          <input id="profilePic" type="file" name="profilePic" onChange={handleChange} />
           {form.profilePic && <img src={URL.createObjectURL(form.profilePic)} alt="Profile" />}
         </div>
         <button type="submit">Save Profile</button>
