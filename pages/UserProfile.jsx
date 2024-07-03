@@ -13,12 +13,16 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        const token = localStorage.getItem("token");
         const userId = router.query.userId || localStorage.getItem("userId");
-        
+        console.log(`Fetching profile for userId: ${userId}`); 
+  
         // Fetch user profile
-        const profileResponse = await axios.get(`/api/profile/${userId}`);
+        const profileResponse = await axios.get(`/api/profile/${userId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         setProfile(profileResponse.data);
-
+  
         // Generate QR code using quickchart.io
         const qrUrl = `https://quickchart.io/qr?text=${userId}`;
         const qrResponse = await axios.get(qrUrl, { responseType: 'blob' });
@@ -28,9 +32,9 @@ const UserProfile = () => {
         console.error("Error retrieving profile data", error);
       }
     };
-
+  
     fetchProfile();
-  }, [router.query.userId]); 
+  }, [router.query.userId]);
 
   if (!profile) {
     return <p>Loading...</p>;
@@ -43,9 +47,18 @@ const UserProfile = () => {
 
   const handleSaveClick = async (field) => {
     try {
+      const token = localStorage.getItem("token");
       const userId = router.query.userId || localStorage.getItem("userId");
-      await axios.put(`/api/profile/${userId}`, { [field]: tempData[field] });
-      setProfile((prevProfile) => ({ ...prevProfile, [field]: tempData[field] }));
+      await axios.put(`/api/profile/${userId}`, { [field]: tempData[field] }, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      // Fetch updated profile data
+      const profileResponse = await axios.get(`/api/profile/${userId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setProfile(profileResponse.data);
+
       setEditField(null);
     } catch (error) {
       console.error("Error updating profile data", error);
@@ -74,7 +87,7 @@ const UserProfile = () => {
           </div>
         ) : (
           <button className={styles.editButton} onClick={() => handleEditClick('profilePic')}>
-            <i className="fas fa-edit"></i>
+            <span className={styles.editIcon}>&#9998;</span>
           </button>
         )}
         <h2 className={styles.fullName}>
@@ -87,7 +100,7 @@ const UserProfile = () => {
             <>
               {profile.fullName}
               <button className={styles.editButton} onClick={() => handleEditClick('fullName')}>
-                <i className="fas fa-edit"></i>
+                <span className={styles.editIcon}>&#9998;</span>
               </button>
             </>
           )}
@@ -105,7 +118,7 @@ const UserProfile = () => {
             <>
               {profile.school}
               <button className={styles.editButton} onClick={() => handleEditClick('school')}>
-                <i className="fas fa-edit"></i>
+                <span className={styles.editIcon}>&#9998;</span>
               </button>
             </>
           )}
@@ -121,7 +134,7 @@ const UserProfile = () => {
             <>
               <p>{profile.bio}</p>
               <button className={styles.editButton} onClick={() => handleEditClick('bio')}>
-                <i className="fas fa-edit"></i>
+                <span className={styles.editIcon}>&#9998;</span>
               </button>
             </>
           )}

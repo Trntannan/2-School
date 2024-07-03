@@ -13,30 +13,45 @@ const CompleteProfile = () => {
     profilePic: null,
   });
 
+  const [previewUrl, setPreviewUrl] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
-    const userId = router.query.userId || localStorage.getItem('userId');
-    setForm((prevForm) => ({ ...prevForm, id: userId }));
+    const userId = localStorage.getItem('userId');
 
-    const fetchProfile = async () => {
-      if (userId) {
+    if (userId) {
+      setForm((prevForm) => ({ ...prevForm, id: userId }));
+
+      const fetchProfile = async () => {
         try {
           const response = await axios.get(`/api/profile/${userId}`);
           setForm((prevForm) => ({ ...prevForm, ...response.data }));
         } catch (error) {
           console.error("Error retrieving profile data", error);
         }
-      }
-    };
+      };
 
-    fetchProfile();
-  }, [router.query.userId]);
+      fetchProfile();
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'profilePic') {
-      setForm({ ...form, [name]: files[0] });
+      const file = files[0];
+      console.log('Profile pic file:', file);
+      setForm({ ...form, [name]: file });
+
+      if (file) {
+        try {
+          const objectUrl = URL.createObjectURL(file);
+          setPreviewUrl(objectUrl);
+        } catch (error) {
+          console.error("Error creating object URL", error);
+        }
+      } else {
+        setPreviewUrl(null);
+      }
     } else {
       setForm({ ...form, [name]: value });
     }
@@ -92,7 +107,7 @@ const CompleteProfile = () => {
         <div className={styles.profilePicContainer}>
           <label htmlFor="profilePic">Profile Picture</label>
           <input id="profilePic" type="file" name="profilePic" onChange={handleChange} />
-          {form.profilePic && <img src={URL.createObjectURL(form.profilePic)} alt="Profile" />}
+          {previewUrl && <img src={previewUrl} alt="Profile" />}
         </div>
         <button type="submit">Save Profile</button>
       </form>

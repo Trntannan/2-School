@@ -103,20 +103,6 @@ nav {
   padding-top: 80px; 
 }
 
-button {
-  border-radius: 5px;
-  padding: 10px;
-  background-color: #0070f3;
-  color: white;
-  border: none;
-  cursor: pointer;
-
-}
-
-button:hover {
-  background-color: #005bb5;
-}
-
 form {
   display: flex;
   flex-direction: column;

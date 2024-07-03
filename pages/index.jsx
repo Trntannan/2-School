@@ -32,8 +32,9 @@ const Home = () => {
           password: form.password,
         });
         alert(response.data.message);
-        localStorage.setItem("userId", response.data.user.userId); // Store user ID in local storage
-        router.push(`/userProfile?userId=${response.data.user.userId}`); // Redirect to userProfile with userId
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("userId", response.data.userId); 
+        router.push(`/userProfile`);
       } catch (error) {
         alert(error.response.data.message || "Error logging in");
       }
@@ -50,7 +51,8 @@ const Home = () => {
           password,
         });
         alert(response.data.message);
-        localStorage.setItem("userId", response.data.userId); // Store user ID in local storage
+        localStorage.setItem("token", response.data.token); 
+        localStorage.setItem("userId", response.data.userId);
         router.push("/completeProfile");
       } catch (error) {
         alert(error.response.data.message || "Error signing up");
@@ -85,13 +87,13 @@ const Home = () => {
                 onChange={handleChange}
                 required
               />
-              <button className={styles.button} type="submit">
+              <button type="submit" className={styles.loginBtn}>
                 Login
               </button>
             </form>
-            <div className={styles.option}>
-              <p onClick={handleToggle}>Sign Up</p>
-            </div>
+            <p onClick={handleToggle} className={styles.toggleText}>
+              Don't have an account? Sign up
+            </p>
           </div>
         ) : (
           <div>
@@ -132,13 +134,13 @@ const Home = () => {
                 onChange={handleChange}
                 required
               />
-              <button className={styles.button} type="submit">
-                Sign Up
+              <button type="submit" className={styles.loginBtn}>
+                Sign up
               </button>
             </form>
-            <div className={styles.option}>
-              <p onClick={handleToggle}>Login</p>
-            </div>
+            <p onClick={handleToggle} className={styles.toggleText}>
+              Login
+            </p>
           </div>
         )}
       </div>

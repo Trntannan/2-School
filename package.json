@@ -1,28 +1,32 @@
 {
   "name": "to-school",
   "version": "0.1.0",
-  "private": true,
   "scripts": {
-    "dev": "node server.js & npm run open-browser",
-    "open-browser": "start http://localhost:3000",
-    "build": "next build",
-    "start": "NODE_ENV=production node server.js"
+    "dev": "next dev",
+    "start": "node server.js",
+    "open-browser": "open http://localhost:3000",
+    "open-dev": "npm run dev && npm run open-browser"
   },
   "dependencies": {
     "axios": "^1.7.2",
-    "express": "^4.19.2",
+    "body-parser": "^1.19.0",
+    "crypto": "^1.0.1",
+    "express": "^4.17.1",
+    "express-jwt": "^8.4.1",
+    "font-awesome": "^4.7.0",
+    "fs": "0.0.1-security",
     "google-map-react": "^2.2.1",
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",
-    "mongodb": "^6.7.0",
-    "mongoose": "^8.4.3",
-    "multer": "^1.4.5-lts.1",
+    "mongodb": "^3.6.6",
+    "mongoose": "^5.12.3",
+    "multer": "^1.4.2",
     "next": "14.2.4",
+    "open": "^8.0.7",
     "qrcode": "^1.5.3",
     "react": "^18",
     "react-dom": "^18",
-    "react-google-autocomplete": "^2.7.3",
-    "react-leaflet": "^4.2.1"
+    "react-google-autocomplete": "^2.7.3"
   },
   "devDependencies": {
     "@types/node": "^20",

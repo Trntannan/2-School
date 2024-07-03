@@ -1,5 +1,3 @@
-
-
 .picName {
     display: flex;
     flex-direction: row;
@@ -40,4 +38,16 @@
 
 .editButton {
     margin-top: 10px;
+    background: none;
+    border: none;
+}
+
+.editButton:hover {
+    cursor: pointer;
+}
+
+.editIcon {
+    color: black;
+    background: transparent;
+
 }

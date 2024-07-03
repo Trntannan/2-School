@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import App from 'next/app';
+import axios from 'axios';
 import Link from 'next/link';
 import '../styles/globals.css';
 
@@ -16,6 +17,18 @@ class MyApp extends App {
     this.setState({ dropdownOpen: false });
   };
 
+  componentDidMount() {
+    axios.interceptors.request.use((config) => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+      }
+      return config;
+    }, (error) => {
+      return Promise.reject(error);
+    });
+  }
+
   render() {
     const { Component, pageProps } = this.props;
     const { dropdownOpen } = this.state;
@@ -27,7 +40,7 @@ class MyApp extends App {
           {dropdownOpen && (
             <div className="dropdown-content">
               <Link href="/" onClick={this.closeDropdown}>Home</Link>
-              <Link href="/UserProfile" onClick={this.closeDropdown}>Profile</Link>
+              <Link href="/userProfile" onClick={this.closeDropdown}>Profile</Link>
               <Link href="/groups" onClick={this.closeDropdown}>Groups</Link>
             </div>
           )}

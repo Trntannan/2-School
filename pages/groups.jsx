@@ -88,14 +88,11 @@ const Groups = () => {
         <div className={styles.groupsList}>
           <div className={styles.groupsHeader}>
             <h2 className={styles.userGroups}>Active Groups</h2>
-<<<<<<< HEAD
+
             <button
               className={styles.addGroupButton}
-              onClick={handleNewGroup}
-            >
-=======
+              onClick={handleNewGroup}></button>
             <button className={styles.addGroupButton} onClick={handleNewGroupClick}>
->>>>>>> 38a93a2382d1dfe641ace91c445988770ba95f10
               +
             </button>
           </div>
