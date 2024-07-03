@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import GoogleMapReact from 'google-map-react';
+import { useRouter } from "next/router";
 import styles from "../styles/groups.module.css";
 import NewGroupForm from "../components/newGroupForm";
 import axios from "axios";
@@ -10,17 +11,20 @@ const Groups = () => {
   const [map, setMap] = useState(null);
   const [mapsApi, setMapsApi] = useState(null);
   const [directionRenderers, setDirectionRenderers] = useState([]);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUserGroups = async () => {
-      const userId = localStorage.getItem("userId");
-      if (!userId) {
-        // Handle missing user ID
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/login"); // Redirect to login if no token is found
         return;
       }
 
       try {
-        const response = await axios.get(`/api/groups/${userId}`);
+        const response = await axios.get("/api/groups", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         if (response.data.groups) {
           setGroups(response.data.groups);
         }
@@ -30,7 +34,7 @@ const Groups = () => {
     };
 
     fetchUserGroups();
-  }, []);
+  }, [router]);
 
   const handleNewGroup = () => {
     setShowNewGroupForm(true);
@@ -88,11 +92,7 @@ const Groups = () => {
         <div className={styles.groupsList}>
           <div className={styles.groupsHeader}>
             <h2 className={styles.userGroups}>Active Groups</h2>
-
-            <button
-              className={styles.addGroupButton}
-              onClick={handleNewGroup}></button>
-            <button className={styles.addGroupButton} onClick={handleNewGroupClick}>
+            <button className={styles.addGroupButton} onClick={handleNewGroup}>
               +
             </button>
           </div>

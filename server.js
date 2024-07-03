@@ -16,7 +16,7 @@ const upload = multer({ storage });
 const mongoURI =
   "mongodb+srv://trntannan1:Trentas.10@cluster0.gubddcm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0i";
 
-let usersCollection; // Declare usersCollection variable
+let usersCollection; 
 
 async function connectToMongoDB() {
   const client = new MongoClient(mongoURI, {
@@ -39,8 +39,8 @@ async function connectToMongoDB() {
       console.log("Created 'users' collection in the database");
     }
 
-    usersCollection = db.collection("users"); // Set the usersCollection
-
+    usersCollection = db.collection("users");
+    
     return db;
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
