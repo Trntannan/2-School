@@ -41,14 +41,34 @@
   justify-content: flex-start;
 }
 
-.activeGroups {
+.userGroups {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: flex-start;
+}
+
+.addGroupButton {
   align-self: center;
+  background-color: white;
+  color: #0070f3;
+  font-size: xx-large;
+  margin-left: 60%;
+}
+
+.addGroupButton:hover {
+  align-self: center;
+  background-color: white;
+  color: #004ba1;
+  font-size: xx-large;
 }
 
 .groupsHeader {
   display: flex;
-  justify-content: space-between;
+  flex-direction: row;
   margin-bottom: 20px;
+  width: 100%;
 }
 
 .groupsList ul {
