@@ -14,7 +14,7 @@ const UserProfile = () => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        const userId = router.query.userId || localStorage.getItem("userId");
+        const userId = localStorage.getItem("userId");
         console.log(`Fetching profile for userId: ${userId}`); 
   
         // Fetch user profile
@@ -34,7 +34,7 @@ const UserProfile = () => {
     };
   
     fetchProfile();
-  }, [router.query.userId]);
+  }, [router]);
 
   if (!profile) {
     return <p>Loading...</p>;
@@ -48,7 +48,7 @@ const UserProfile = () => {
   const handleSaveClick = async (field) => {
     try {
       const token = localStorage.getItem("token");
-      const userId = router.query.userId || localStorage.getItem("userId");
+      const userId = localStorage.getItem("userId");
       await axios.put(`/api/profile/${userId}`, { [field]: tempData[field] }, {
         headers: { 'Authorization': `Bearer ${token}` }
       });

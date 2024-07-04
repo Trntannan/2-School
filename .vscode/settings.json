@@ -3,6 +3,7 @@
         "fontawesome",
         "fortawesome",
         "geocode",
-        "Groupform"
+        "Groupform",
+        "resave"
     ]
 }
